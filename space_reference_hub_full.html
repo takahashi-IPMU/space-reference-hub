@@ -1,0 +1,1229 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>Space Mission Reference Hub – Lunar / NRHO / LEO</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <style>
+    :root {
+      --bg-color: #f4f5f7;
+      --bg-accent: #ffffff;
+      --text-color: #1f2933;
+      --muted-text: #6b7785;
+      --accent-color: #2563eb;
+      --accent-soft: rgba(37, 99, 235, 0.12);
+      --border-color: #d0d7e2;
+      --card-shadow: 0 14px 30px rgba(15, 23, 42, 0.10);
+      --card-radius: 18px;
+      --section-spacing: 2.6rem;
+      --card-padding: 1.6rem;
+      --font-sans: -apple-system, BlinkMacSystemFont, "SF Pro Text",
+                   "Hiragino Sans", "Yu Gothic", system-ui, sans-serif;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg-color: #020617;
+        --bg-accent: #020617;
+        --text-color: #e5e7eb;
+        --muted-text: #94a3b8;
+        --accent-color: #60a5fa;
+        --accent-soft: rgba(96, 165, 250, 0.20);
+        --border-color: #1f2937;
+        --card-shadow: 0 18px 40px rgba(15, 23, 42, 0.75);
+      }
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: var(--font-sans);
+      color: var(--text-color);
+      background:
+        radial-gradient(circle at 0% 0%, rgba(59,130,246,0.18), transparent 55%),
+        radial-gradient(circle at 100% 100%, rgba(45,212,191,0.16), transparent 55%),
+        var(--bg-color);
+      min-height: 100vh;
+    }
+
+    .page-container {
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: 2.6rem 1.4rem 3.2rem;
+    }
+
+    header {
+      margin-bottom: var(--section-spacing);
+    }
+
+    .eyebrow {
+      font-size: 0.78rem;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--muted-text);
+      font-weight: 600;
+      margin-bottom: 0.45rem;
+    }
+
+    h1 {
+      font-size: clamp(1.9rem, 4vw, 2.4rem);
+      margin: 0 0 0.55rem 0;
+      letter-spacing: -0.03em;
+    }
+
+    .subtitle {
+      font-size: 0.95rem;
+      color: var(--muted-text);
+      max-width: 720px;
+      line-height: 1.7;
+    }
+
+    .section {
+      margin-bottom: var(--section-spacing);
+    }
+
+    .section-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      gap: 1rem;
+      margin: 0 0 0.9rem 0.2rem;
+    }
+
+    .section-title {
+      font-size: 1.02rem;
+      font-weight: 600;
+      letter-spacing: 0.09em;
+      text-transform: uppercase;
+      color: var(--muted-text);
+    }
+
+    .section-note {
+      font-size: 0.78rem;
+      color: var(--muted-text);
+    }
+
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1.25rem;
+    }
+
+    .card {
+      background: var(--bg-accent);
+      border-radius: var(--card-radius);
+      padding: var(--card-padding);
+      border: 1px solid rgba(148, 163, 184, 0.26);
+      box-shadow: var(--card-shadow);
+      backdrop-filter: blur(16px);
+      position: relative;
+      overflow: hidden;
+      transition:
+        transform 160ms ease-out,
+        box-shadow 160ms ease-out,
+        border-color 160ms ease-out,
+        background-color 160ms ease-out;
+    }
+
+    .card::before {
+      content: "";
+      position: absolute;
+      inset: -30%;
+      background: radial-gradient(circle at 0 0, var(--accent-soft), transparent 60%);
+      opacity: 0;
+      transition: opacity 200ms ease-out;
+      pointer-events: none;
+    }
+
+    .card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 22px 48px rgba(15, 23, 42, 0.20);
+      border-color: rgba(96, 165, 250, 0.8);
+      background-color: rgba(15, 23, 42, 0.03);
+    }
+
+    .card:hover::before {
+      opacity: 1;
+    }
+
+    .card-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      font-size: 0.7rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: var(--muted-text);
+      margin-bottom: 0.6rem;
+    }
+
+    .tag-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 999px;
+      background: var(--accent-color);
+      box-shadow: 0 0 0 3px var(--accent-soft);
+    }
+
+    .card-title {
+      font-size: 0.98rem;
+      font-weight: 600;
+      margin-bottom: 0.4rem;
+    }
+
+    .card-meta {
+      font-size: 0.8rem;
+      color: var(--muted-text);
+      margin-bottom: 0.6rem;
+    }
+
+    .card-desc {
+      font-size: 0.86rem;
+      color: var(--muted-text);
+      margin-bottom: 0.95rem;
+      line-height: 1.7;
+    }
+
+    .card-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      font-size: 0.82rem;
+      font-weight: 500;
+      color: var(--accent-color);
+      text-decoration: none;
+      padding: 0.32rem 0.7rem;
+      border-radius: 999px;
+      background-color: var(--accent-soft);
+      border: 1px solid rgba(148, 163, 184, 0.4);
+      transition:
+        background-color 140ms ease-out,
+        transform 140ms ease-out,
+        box-shadow 140ms ease-out;
+      white-space: nowrap;
+    }
+
+    .card-link span.url-text {
+      max-width: 220px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .card-link svg {
+      width: 14px;
+      height: 14px;
+      flex-shrink: 0;
+    }
+
+    .card-link:hover {
+      background-color: rgba(37, 99, 235, 0.19);
+      transform: translateY(-1px);
+      box-shadow: 0 7px 20px rgba(15, 23, 42, 0.2);
+    }
+
+    @media (max-width: 640px) {
+      .page-container {
+        padding: 2rem 1.1rem 2.4rem;
+      }
+      .card {
+        padding: 1.3rem 1.2rem 1.25rem;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="page-container">
+    <header>
+      <div class="eyebrow">Reference Hub</div>
+      <h1>Space Mission Reference Hub – Lunar / NRHO / LEO</h1>
+      <p class="subtitle">
+        月面・NRHO・低軌道（LEO）ミッションに関する環境仕様、SEE / 放射線設計、
+        月面ペイロード配送（いわゆる「月面宅急便」）、LuSEE-Night など月面夜間ミッション関連の
+        主要な公開文書へのリンク集です。<br>
+        新しい文書は、各セクション内の
+        <code>&lt;article class="card"&gt;…&lt;/article&gt;</code> をコピーして追記することで簡単に追加できます。
+      </p>
+    </header>
+
+    <!-- ======================================================= -->
+    <!-- SECTION: SEE / Radiation & RHA                         -->
+    <!-- ======================================================= -->
+    <section class="section" id="see-radiation">
+      <div class="section-header">
+        <div class="section-title">SEE / Radiation &amp; RHA</div>
+        <div class="section-note">DSNE / Lunar Surface Data Book / ECSS / Gateway SEE 解説など</div>
+      </div>
+
+      <div class="cards">
+        <!-- DSNE -->
+        <article class="card">
+          <div class="card-tag">
+            <span class="tag-dot"></span>
+            NASA – Environment Spec
+          </div>
+          <div class="card-title">
+            SLS-SPEC-159 Cross-Program Design Specification for Natural Environments (DSNE), Revision H
+          </div>
+          <div class="card-meta">
+            NASA • Natural Environments • SEE（GCR / SPE / Trapped）
+          </div>
+          <p class="card-desc">
+            NASA の自然環境設計基準書。ISS クラス LEO と geomagnetic-unshielded 環境（NRHO 等）における
+            SEE 環境（GCR, SPE, trapped protons）や帯電環境が体系的に定義されています。
+            NRHO / LEO / 月面の放射線比較のベースとなる文書です。
+          </p>
+          <a class="card-link"
+             href="https://ntrs.nasa.gov/api/citations/20205007447/downloads/SLS-SPEC-159%20Cross-Program%20Design%20Specification%20for%20Natural%20Environments%20(DSNE)%20REVISION%20H.pdf"
+             target="_blank" rel="noopener">
+            <span class="url-text">ntrs.nasa.gov / SLS-SPEC-159 (DSNE)</span>
+            <svg viewBox="0 0 20 20" aria-hidden="true">
+              <path fill="currentColor"
+                d="M5 15.5a.75.75 0 0 1 0-1.06L13.44 6H9a.75.75 0 0 1 0-1.5h6.25A.75.75 0 0 1 16 5.25V11.5a.75.75 0 0 1-1.5 0V7.06L6.56 15.5a.75.75 0 0 1-1.06 0Z" />
+            </svg>
+          </a>
+        </article>
+
+        <!-- Lunar Surface Data Book -->
+        <article class="card">
+          <div class="card-tag">
+            <span class="tag-dot"></span>
+            NASA – Lunar Surface
+          </div>
+          <div class="card-title">
+            Lunar Surface Data Book, ACD-50044 Rev A (2023)
+          </div>
+          <div class="card-meta">
+            NASA • Lunar Environment • GCR / SPE / Thermal / Plasma
+          </div>
+          <p class="card-desc">
+            月面（特に極域）での照明・熱・プラズマ・ダスト・放射線環境をまとめたデータブック。
+            放射線章では DSNE を参照しつつ、月面表面での GCR / SPE 環境を整理しています。
+            月面ローバーや着陸機の環境仕様を定義する際の基礎資料です。
+          </p>
+          <a class="card-link"
+             href="https://ntrs.nasa.gov/api/citations/20230007818/downloads/ACD-50044%20Lunar%20Surface%20Data%20Book%20Rev%20A.pdf"
+             target="_blank" rel="noopener">
+            <span class="url-text">ntrs.nasa.gov / Lunar Surface Data Book</span>
+            <svg viewBox="0 0 20 20" aria-hidden="true">
+              <path fill="currentColor"
+                d="M5 15.5a.75.75 0 0 1 0-1.06L13.44 6H9a.75.75 0 0 1 0-1.5h6.25A.75.75 0 0 1 16 5.25V11.5a.75.75 0 0 1-1.5 0V7.06L6.56 15.5a.75.75 0 0 1-1.06 0Z" />
+            </svg>
+          </a>
+        </article>
+
+        <!-- Willis et al. Gateway SEE 解説 -->
+        <article class="card">
+          <div class="card-tag">
+            <span class="tag-dot"></span>
+            Gateway / NRHO
+          </div>
+          <div class="card-title">
+            Willis et al., “Space Environments Applied to the Gateway Program” (2024)
+          </div>
+          <div class="card-meta">
+            Gateway • NRHO • SEE &amp; Charging • Application of DSNE
+          </div>
+          <p class="card-desc">
+            Gateway / NRHO ミッションに対して、DSNE に基づく SEE・TID・帯電環境の適用方法を解説した技術論文。
+            CMV 通過中の proton-induced SEE や、GCR heavy-ion 環境の扱いが具体的に説明されています。
+          </p>
+          <a class="card-link"
+             href="https://www.researchgate.net/publication/384693538_Space_Environments_Applied_to_the_Gateway_Program"
+             target="_blank" rel="noopener">
+            <span class="url-text">researchgate.net / Gateway Program</span>
+            <svg viewBox="0 0 20 20" aria-hidden="true">
+              <path fill="currentColor"
+                d="M5 15.5a.75.75 0 0 1 0-1.06L13.44 6H9a.75.75 0 0 1 0-1.5h6.25A.75.75 0 0 1 16 5.25V11.5a.75.75 0 0 1-1.5 0V7.06L6.56 15.5a.75.75 0 0 1-1.06 0Z" />
+            </svg>
+          </a>
+        </article>
+
+
+ 
+        <!-- WNESC-RP-23-01873 — Cold Electronics for Lunar Missions（NASA NESC, 2025） -->
+<article class="card">
+  <div class="card-tag">
+    <span class="tag-dot"></span>
+    NASA – Radiation & Cold Electronics
+  </div>
+  <div class="card-title">
+    Cold Electronics for Lunar Missions (NESC-RP-23-01873 / NASA TM-20250008583)
+  </div>
+  <div class="card-meta">
+    NASA Engineering & Safety Center (NESC) • 2025
+  </div>
+  <p class="card-desc">
+    月夜・極低温環境で動作する電子機器に関する包括的な技術評価レポート。
+    コールドエレクトロニクス、パッケージング、材料、TID/SEE、サーマルサイクル、信頼性評価、
+    Qualification 推奨など、極域ローバーや月夜運用機器に直接役立つ一次資料。
+  </p>
+  <a class="card-link"
+     href="https://ntrs.nasa.gov/citations/20250008583"
+     target="_blank" rel="noopener">
+    <span class="url-text">ntrs.nasa.gov / 20250008583</span>
+    <svg viewBox="0 0 20 20" aria-hidden="true"><path fill="currentColor" d="M5 15.5a.75.75 0 0 1 0-1.06L13.44 6H9a.75.75 0 0 1 0-1.5h6.25A.75.75 0 0 1 16 5.25V11.5a.75.75 0 0 1-1.5 0V7.06L6.56 15.5a.75.75 0 0 1-1.06 0Z"/></svg>
+  </a>
+</article>
+
+      <!-- Biswas 2023 — Rerating of Electronic Components for Improved Lunar Mission Night Survival（TUM PhD Thesis） -->
+          
+<article class="card">
+  <div class="card-tag">
+    <span class="tag-dot"></span>
+    Lunar Night Survival – Electronics
+  </div>
+  <div class="card-title">
+    Rerating of Electronic Components for Improved Lunar Mission Night Survival
+  </div>
+  <div class="card-meta">
+    S. Biswas • Technical University of Munich • PhD Thesis • 2023
+  </div>
+  <p class="card-desc">
+    月夜の極低温環境で電子部品を安全に動作させるための「温度デレーティング手法」を
+    包括的に学術的にまとめた博士論文。各種 IC・パッケージ・材料の低温性能変化、
+    測定データ、故障モード解析などが豊富で、月面ローバーの耐寒設計に直結する内容。
+  </p>
+  <a class="card-link"
+     href="https://mediatum.ub.tum.de/doc/1705787/1705787.pdf"
+     target="_blank" rel="noopener">
+    <span class="url-text">mediatum.ub.tum.de / Biswas 2023 Thesis</span>
+    <svg viewBox="0 0 20 20" aria-hidden="true"><path fill="currentColor" d="M5 15.5a.75.75 0 0 1 0-1.06L13.44 6H9a.75.75 0 0 1 0-1.5h6.25A.75.75 0 0 1 16 5.25V11.5a.75.75 0 0 1-1.5 0V7.06L6.56 15.5a.75.75 0 0 1-1.06 0Z"/></svg>
+  </a>
+</article>
+          
+         <!-- Add new SEE / Radiation card here -->
+      </div>
+    </section>
+
+    <!-- ======================================================= -->
+    <!-- SECTION: EEE Parts / COTS Parts Assurance               -->
+    <!-- ======================================================= -->
+    <section class="section" id="eee-cots">
+      <div class="section-header">
+        <div class="section-title">EEE Parts / COTS Parts Assurance</div>
+        <div class="section-note">COTS品を含む EEE 部品の選定・保証に関する標準文書</div>
+      </div>
+
+      <div class="cards">
+        <!-- NASA-STD-8739.10 -->
+        <article class="card">
+          <div class="card-tag">
+            <span class="tag-dot"></span>
+            NASA – EEE Parts Standard
+          </div>
+          <div class="card-title">
+            NASA-STD-8739.10 – Electrical, Electronic, and Electromechanical (EEE) Parts Assurance Standard
+          </div>
+          <div class="card-meta">
+            NASA • EEE Parts Assurance • COTS / PEMs
+          </div>
+          <p class="card-desc">
+            NASA の EEE 部品保証標準。宇宙機および重要な地上支援装置に用いる EEE 部品について、
+            COTS 品やプラスチック封止品（PEMs）を含めた選定・調達・トレーサビリティ・試験・保管・適用方法を定めています。
+            COTS メモリ／マイコンなどを使用する際のリスク管理とパーツ・アシュアランスの前提となる文書です。
+          </p>
+          <a class="card-link"
+             href="https://standards.nasa.gov/standard/NASA/NASA-STD-873910"
+             target="_blank" rel="noopener">
+            <span class="url-text">standards.nasa.gov / NASA-STD-8739.10</span>
+            <svg viewBox="0 0 20 20" aria-hidden="true">
+              <path fill="currentColor"
+                d="M5 15.5a.75.75 0 0 1 0-1.06L13.44 6H9a.75.75 0 0 1 0-1.5h6.25A.75.75 0 0 1 16 5.25V11.5a.75.75 0 0 1-1.5 0V7.06L6.56 15.5a.75.75 0 0 1-1.06 0Z" />
+            </svg>
+          </a>
+        </article>
+        <!-- ECSS-Q-ST-60-15C -->
+        <article class="card">
+          <div class="card-tag">
+            <span class="tag-dot"></span>
+            ECSS – RHA
+          </div>
+          <div class="card-title">
+            ECSS-Q-ST-60-15C – Radiation Hardness Assurance (EEE Components)
+          </div>
+          <div class="card-meta">
+            ESA / ECSS • RHA • EEE Components
+          </div>
+          <p class="card-desc">
+            EEE 部品に対する Radiation Hardness Assurance（RHA）の標準。
+            SEE / TID を踏まえた部品選定・試験・保証の枠組みを与え、COTS 利用時の追加評価プロセスも規定しています。
+          </p>
+          <a class="card-link"
+             href="https://ecss.nl/standard/ecss-q-st-60-15c-rev-1-radiation-hardness-assurance-20-march-2025/"
+             target="_blank" rel="noopener">
+            <span class="url-text">ecss.nl / ECSS-Q-ST-60-15C</span>
+            <svg viewBox="0 0 20 20" aria-hidden="true">
+              <path fill="currentColor"
+                d="M5 15.5a.75.75 0 0 1 0-1.06L13.44 6H9a.75.75 0 0 1 0-1.5h6.25A.75.75 0 0 1 16 5.25V11.5a.75.75 0 0 1-1.5 0V7.06L6.56 15.5a.75.75 0 0 1-1.06 0Z" />
+            </svg>
+          </a>
+        </article>
+
+        <!-- ECSS-E-ST-10-04C -->
+        <article class="card">
+          <div class="card-tag">
+            <span class="tag-dot"></span>
+            ECSS – Environment
+          </div>
+          <div class="card-title">
+            ECSS-E-ST-10-04C – Space Environment
+          </div>
+          <div class="card-meta">
+            ESA / ECSS • Space Environment Models • GCR / SPE / Trapped
+          </div>
+          <p class="card-desc">
+            ESA ミッションで用いる宇宙環境モデル（GCR, SPE, trapped radiation など）を定義した標準。
+            SEE / TID 解析に用いる「環境モデル」の出発点となる文書です。
+          </p>
+          <a class="card-link"
+             href="https://ecss.nl/standard/ecss-e-st-10-04c-rev-1-space-environment-15-june-2020/"
+              
+             target="_blank" rel="noopener">
+            <span class="url-text">ecss.nl / ECSS-E-ST-10-04C</span>
+            <svg viewBox="0 0 20 20" aria-hidden="true">
+              <path fill="currentColor"
+                d="M5 15.5a.75.75 0 0 1 0-1.06L13.44 6H9a.75.75 0 0 1 0-1.5h6.25A.75.75 0 0 1 16 5.25V11.5a.75.75 0 0 1-1.5 0V7.06L6.56 15.5a.75.75 0 0 1-1.06 0Z" />
+            </svg>
+          </a>
+        </article>
+
+        <!-- ECSS-E-ST-10-12C -->
+        <article class="card">
+          <div class="card-tag">
+            <span class="tag-dot"></span>
+            ECSS – Radiation Effects
+          </div>
+          <div class="card-title">
+            ECSS-E-ST-10-12C – Radiation Effects and Design Margins
+          </div>
+          <div class="card-meta">
+            ESA / ECSS • Radiation Calculation • Design Margins
+          </div>
+          <p class="card-desc">
+            ECSS-E-ST-10-04C で定義された環境を用いて、TID / SEE の影響をどう計算し、
+            どのような設計マージンを取るかを定めた標準です。放射線設計プロセス全体のルールに相当します。
+          </p>
+          <a class="card-link"
+             href="https://ecss.nl/standard/ecss-e-st-10-12c-radiation-effects/"
+             target="_blank" rel="noopener">
+            <span class="url-text">ecss.nl / ECSS-E-ST-10-12C</span>
+            <svg viewBox="0 0 20 20" aria-hidden="true">
+              <path fill="currentColor"
+                d="M5 15.5a.75.75 0 0 1 0-1.06L13.44 6H9a.75.75 0 0 1 0-1.5h6.25A.75.75 0 0 1 16 5.25V11.5a.75.75 0 0 1-1.5 0V7.06L6.56 15.5a.75.75 0 0 1-1.06 0Z" />
+            </svg>
+          </a>
+        </article>
+
+                  <!-- JAXA -->
+<article class="card">
+  <div class="card-tag">
+    <span class="tag-dot"></span>
+    JAXA – 宇宙環境標準
+  </div>
+  <div class="card-title">
+    JAXA-JERG-2-141「宇宙環境標準」
+  </div>
+  <div class="card-meta">
+    JAXA 技術標準 • JERG-2-141_N1.pdf
+  </div>
+  <p class="card-desc">
+    宇宙機が軌道上で遭遇する自然宇宙環境（真空、熱環境、放射線、プラズマ、帯電、
+    メテオロイド／スペースデブリなど）を体系的に定義した JAXA の宇宙環境標準。
+    他の設計標準（一般環境標準、耐放射線設計標準など）からも参照されており、
+    日本の衛星・探査機開発における宇宙環境条件設定の基本文書となっています。
+  </p>
+  <a class="card-link"
+     href="https://sma.jaxa.jp/TechDoc/Docs/JAXA-JERG-2-141_N1.pdf"
+     target="_blank" rel="noopener">
+    <span class="url-text">sma.jaxa.jp / JAXA-JERG-2-141_N1.pdf</span>
+    <svg viewBox="0 0 20 20" aria-hidden="true">
+      <path fill="currentColor"
+        d="M5 15.5a.75.75 0 0 1 0-1.06L13.44 6H9a.75.75 0 0 1 0-1.5h6.25A.75.75 0 0 1 16 5.25V11.5a.75.75 0 0 1-1.5 0V7.06L6.56 15.5a.75.75 0 0 1-1.06 0Z" />
+    </svg>
+  </a>
+</article>
+          
+        <!-- Add new EEE / COTS card here -->
+      </div>
+    </section>
+
+      
+<section class="section" id="power-eps">
+  <div class="section-header">
+    <div class="section-title">
+      <span class="section-title-dot"></span>
+      Power / EPS / Cold Electronics
+    </div>
+    <div class="section-note">
+      Electrical Power System • Cold Survival • ECSS / NASA
+    </div>
+  </div>
+
+  <div class="cards">
+
+    <!-- ECSS-E-ST-20-20C -->
+    <article class="card">
+      <div class="card-tag">
+        <span class="tag-dot"></span>
+        ECSS – Power Systems
+      </div>
+      <div class="card-title">
+        ECSS-E-ST-20-20C – Spacecraft Electrical Power Design
+      </div>
+      <div class="card-meta">
+        European Cooperation for Space Standardization • 2020
+      </div>
+      <p class="card-desc">
+        宇宙機電源（EPS）の設計要求を定義する ECSS の主要標準。
+        電源バス電圧、冗長構成、LCL（Latching Current Limiter）、
+        電力制御・保護回路など、ローバーの電源設計にも直接適用可能な設計指針を提供。
+      </p>
+      <a class="card-link"
+         href="https://ecss.nl/standard/ecss-e-st-20-20c-spacecraft-electrical-power-design/"
+         target="_blank" rel="noopener">
+        <span class="url-text">ecss.nl / ECSS-E-ST-20-20C</span>
+        <svg viewBox="0 0 20 20" aria-hidden="true">
+          <path fill="currentColor"
+            d="M5 15.5a.75.75 0 0 1 0-1.06L13.44 6H9a.75.75 0 0 1 0-1.5h6.25A.75.75 0 0 1 16 5.25V11.5a.75.75 0 0 1-1.5 0V7.06L6.56 15.5a.75.75 0 0 1-1.06 0Z" />
+        </svg>
+      </a>
+    </article>
+
+
+    <!-- ECSS-E-HB-20-20A -->
+    <article class="card">
+      <div class="card-tag">
+        <span class="tag-dot"></span>
+        ECSS – Power Handbook
+      </div>
+      <div class="card-title">
+        ECSS-E-HB-20-20A – Electrical Power System Design Guidelines
+      </div>
+      <div class="card-meta">
+        ECSS Handbook • 2018
+      </div>
+      <p class="card-desc">
+        ECSS-E-ST-20-20C の詳細ハンドブック。
+        電源アーキテクチャ、LCL の使い方、バッテリー運用、電力予算、
+        サバイバル電力と熱設計の結合など、実務的な EPS 設計方法を解説。
+      </p>
+      <a class="card-link"
+         href="https://ecss.nl/standard/ecss-e-hb-20-20a-electrical-power-system-design-guidelines/"
+         target="_blank" rel="noopener">
+        <span class="url-text">ecss.nl / ECSS-E-HB-20-20A</span>
+        <svg viewBox="0 0 20 20" aria-hidden="true">
+          <path fill="currentColor"
+            d="M5 15.5a.75.75 0 0 1 0-1.06L13.44 6H9a.75.75 0 0 1 0-1.5h6.25A.75.75 0 0 1 16 5.25V11.5a.75.75 0 0 1-1.5 0V7.06L6.56 15.5a.75.75 0 0 1-1.06 0Z" />
+        </svg>
+      </a>
+    </article>
+
+
+    <!-- Mulsow 2022 -->
+    <article class="card">
+      <div class="card-tag">
+        <span class="tag-dot"></span>
+        Lunar Rover – Power Systems
+      </div>
+      <div class="card-title">
+        Influence of the EPS on Lunar Rover Systems Design (ASTRA 2022)
+      </div>
+      <div class="card-meta">
+        M. Mulsow et al. • ESA ESTEC / ASTRA Conference • 2022
+      </div>
+      <p class="card-desc">
+        月面ローバー MOVE を例に、EPS がローバー全体設計（質量・熱制御・運用モード）
+        に与える影響を詳細分析。電源アーキテクチャとサーマルの結合設計を理解する上で有用。
+      </p>
+      <a class="card-link"
+         href="https://arc.aiaa.org/doi/abs/10.2514/6.2022-3831"
+         target="_blank" rel="noopener">
+        <span class="url-text">AIAA / ASTRA 2022 – EPS Influence</span>
+        <svg viewBox="0 0 20 20" aria-hidden="true">
+          <path fill="currentColor"
+            d="M5 15.5a.75.75 0 0 1 0-1.06L13.44 6H9a.75.75 0 0 1 0-1.5h6.25A.75.75 0 0 1 16 5.25V11.5a.75.75 0 0 1-1.5 0V7.06L6.56 15.5a.75.75 0 0 1-1.06 0Z" />
+        </svg>
+      </a>
+    </article>
+
+
+    <!-- Cold Electronics (Biswas 2023 or NESC 再利用するならここに入れてもよい) -->
+    <article class="card">
+      <div class="card-tag">
+        <span class="tag-dot"></span>
+        Lunar Night Survival – Electronics
+      </div>
+      <div class="card-title">
+        Rerating of Electronic Components for Improved Lunar Mission Night Survival
+      </div>
+      <div class="card-meta">
+        S. Biswas • Technical University of Munich • PhD Thesis • 2023
+      </div>
+      <p class="card-desc">
+        月夜（約 14 日間）の極低温環境で電子部品を安全に動かすための
+        デレーティング（低温側のマージン設定）に関する体系的研究。
+        部品特性の温度依存性データが豊富で、寒冷下動作設計の基礎となる文献。
+      </p>
+      <a class="card-link"
+         href="https://mediatum.ub.tum.de/doc/1705787/1705787.pdf"
+         target="_blank" rel="noopener">
+        <span class="url-text">mediatum.ub.tum.de / Biswas 2023</span>
+        <svg viewBox="0 0 20 20" aria-hidden="true">
+          <path fill="currentColor"
+            d="M5 15.5a.75.75 0 0 1 0-1.06L13.44 6H9a.75.75 0 0 1 0-1.5h6.25A.75.75 0 0 1 16 5.25V11.5a.75.75 0 0 1-1.5 0V7.06L6.56 15.5a.75.75 0 0 1-1.06 0Z" />
+        </svg>
+      </a>
+    </article>
+
+  </div>
+</section>
+
+      
+      <section class="section" id="lunar-rover-architecture">
+  <div class="section-header">
+    <div class="section-title">
+      <span class="section-title-dot"></span>
+      Lunar Rover Architecture / Micro Rover
+    </div>
+    <div class="section-note">
+      Rover System Design • Mobility • Mission Architecture
+    </div>
+  </div>
+
+  <div class="cards">
+
+    <!-- CMU-RI-TR-95-24 -->
+    <article class="card">
+      <div class="card-tag">
+        <span class="tag-dot"></span>
+        Lunar Rover – Systems Study
+      </div>
+      <div class="card-title">
+        Design of a Day / Night Lunar Rover (CMU-RI-TR-95-24)
+      </div>
+      <div class="card-meta">
+        P. Berkelman et al. • Carnegie Mellon University Robotics Institute • 1995
+      </div>
+      <p class="card-desc">
+        月昼夜を通して稼働可能なローバーのシステム設計を網羅した古典的レポート。
+        電源、熱、運用モード、機械設計、通信などローバー設計の基本要素を体系化。
+        近年のミッション設計と比較すると古い点もあるが、月面ローバーアーキテクチャの
+        基本構成を理解する上で依然として有用。
+      </p>
+      <a class="card-link"
+         href="https://www.ri.cmu.edu/pub_files/pub1/berkelman_peter_1995_1/berkelman_peter_1995_1.pdf"
+         target="_blank" rel="noopener">
+        <span class="url-text">ri.cmu.edu / CMU-RI-TR-95-24.pdf</span>
+        <svg viewBox="0 0 20 20" aria-hidden="true">
+          <path fill="currentColor"
+            d="M5 15.5a.75.75 0 0 1 0-1.06L13.44 6H9a.75.75 0 0 1 0-1.5h6.25A.75.75 0 0 1 16 5.25V11.5a.75.75 0 0 1-1.5 0V7.06L6.56 15.5a.75.75 0 0 1-1.06 0Z" />
+        </svg>
+      </a>
+    </article>
+
+
+    <!-- Smith 2020 Micro Rover Overview -->
+    <article class="card">
+      <div class="card-tag">
+        <span class="tag-dot"></span>
+        Lunar Rover – Micro Rover Architecture
+      </div>
+      <div class="card-title">
+        A Lunar Micro Rover System Overview for Aiding Science and ISRU Missions
+      </div>
+      <div class="card-meta">
+        E. Smith et al. • iSAIRAS 2020 • NASA ARC / JPL
+      </div>
+      <p class="card-desc">
+        小型（月面マイクロ）ローバーのシステムアーキテクチャ、
+        電源・通信・運用モード・ペイロード統合の全体像をまとめた包括的論文。
+        VIPER・Chang’e 系ローバーとも比較されており、現代の月面ローバー設計の
+        SWaP 要求や運用設計を理解する一次資料として有用。
+      </p>
+      <a class="card-link"
+         href="https://arc.aiaa.org/doi/10.2514/6.i-SAIRAS20-263"
+         target="_blank" rel="noopener">
+        <span class="url-text">iSAIRAS 2020 / Lunar Micro Rover Overview</span>
+        <svg viewBox="0 0 20 20" aria-hidden="true">
+          <path fill="currentColor"
+            d="M5 15.5a.75.75 0 0 1 0-1.06L13.44 6H9a.75.75 0 0 1 0-1.5h6.25A.75.75 0 0 1 16 5.25V11.5a.75.75 0 0 1-1.5 0V7.06L6.56 15.5a.75.75 0 0 1-1.06 0Z" />
+        </svg>
+      </a>
+    </article>
+<!-- VIPER Rover Design / System Overview -->
+<article class="card">
+  <div class="card-tag">
+    <span class="tag-dot"></span>
+    NASA VIPER – Rover System
+  </div>
+  <div class="card-title">
+    VIPER Rover Design and Mission Operations Overview
+  </div>
+  <div class="card-meta">
+    T. Fong et al. • NASA Ames / VIPER Team • 2025
+  </div>
+  <p class="card-desc">
+    NASA の極域探査ローバー VIPER のシステム設計と運用コンセプトをまとめた技術プレゼン資料。
+    電源・熱設計（複数ルナーデイ／PSR サバイバル）、モビリティ、計装、ソフトウェア／自律運用など、
+    現代の極域ローバー設計の実例として有用。
+  </p>
+  <a class="card-link"
+     href="https://ntrs.nasa.gov/citations/20250004148"
+     target="_blank" rel="noopener">
+    <span class="url-text">ntrs.nasa.gov / VIPER Rover Design & Ops</span>
+    <svg viewBox="0 0 20 20" aria-hidden="true">
+      <path fill="currentColor"
+        d="M5 15.5a.75.75 0 0 1 0-1.06L13.44 6H9a.75.75 0 0 1 0-1.5h6.25A.75.75 0 0 1 16 5.25V11.5a.75.75 0 0 1-1.5 0V7.06L6.56 15.5a.75.75 0 0 1-1.06 0Z" />
+    </svg>
+  </a>
+</article>
+
+<!-- LUVMI-X Rover Platform & Mission Concept -->
+<article class="card">
+  <div class="card-tag">
+    <span class="tag-dot"></span>
+    LUVMI-X – EU Micro Rover
+  </div>
+  <div class="card-title">
+    LUVMI and LUVMI-X: Lunar Volatiles Mobile Instruments
+  </div>
+  <div class="card-meta">
+    J. Gancet et al. • ASTRA 2019 • H2020 LUVMI-X
+  </div>
+  <p class="card-desc">
+    欧州 H2020 プロジェクト LUVMI/LUVMI-X のミッションコンセプトとローバープラットフォームを解説した論文。
+    月極域での揮発性物質探査を目的としたマイクロローバーのアーキテクチャ、ペイロード統合、
+    試験キャンペーン結果などがまとめられている。
+  </p>
+  <a class="card-link"
+     href="hhttps://www.researchgate.net/publication/337000512_Lunar_Volatiles_Mobile_Instrumentation_LUVMI_Project_Results"
+     target="_blank" rel="noopener">
+    <span class="url-text">h2020-luvmi-x.eu / ASTRA 2019 LUVMI-X</span>
+    <svg viewBox="0 0 20 20" aria-hidden="true">
+      <path fill="currentColor"
+        d="M5 15.5a.75.75 0 0 1 0-1.06L13.44 6H9a.75.75 0 0 1 0-1.5h6.25A.75.75 0 0 1 16 5.25V11.5a.75.75 0 0 1-1.5 0V7.06L6.56 15.5a.75.75 0 0 1-1.06 0Z" />
+    </svg>
+  </a>
+</article>
+
+<!-- JAXA SLIM LEV-1 / LEV-2 (SORA-Q) -->
+<article class="card">
+  <div class="card-tag">
+    <span class="tag-dot"></span>
+    JAXA SLIM – Nano Rovers
+  </div>
+  <div class="card-title">
+    SLIM Mission & Lunar Exploration Vehicles LEV-1 / LEV-2 (SORA-Q)
+  </div>
+  <div class="card-meta">
+    JAXA • SLIM Media Kit • 2023
+  </div>
+  <p class="card-desc">
+    小型月着陸実証機 SLIM と、そこから分離する超小型ローバー LEV-1 / 変形ナノローバー LEV-2
+    （SORA-Q）の概要をまとめた公式メディアキット。着陸精度のコンセプト、LEV の役割・構成や
+    月面での撮像・通信の流れを俯瞰するのに適している。
+  </p>
+  <a class="card-link"
+     href="https://global.jaxa.jp/countdown/slim/SLIM-mediakit-EN_2308.pdf"
+     target="_blank" rel="noopener">
+    <span class="url-text">global.jaxa.jp / SLIM Media Kit</span>
+    <svg viewBox="0 0 20 20" aria-hidden="true">
+      <path fill="currentColor"
+        d="M5 15.5a.75.75 0 0 1 0-1.06L13.44 6H9a.75.75 0 0 1 0-1.5h6.25A.75.75 0 0 1 16 5.25V11.5a.75.75 0 0 1-1.5 0V7.06L6.56 15.5a.75.75 0 0 1-1.06 0Z" />
+    </svg>
+  </a>
+</article>
+
+          
+          <article class="card">
+  <div class="card-tag">
+    <span class="tag-dot"></span>
+    LEV-1 – Wheel / Grouser Design
+  </div>
+  <div class="card-title">
+    Design of Wheel Grouser Geometry With Reduced Sinkage for LEV-1 Lunar Rover
+  </div>
+  <div class="card-meta">
+    M. Otsuki, K. Yoshikawa, T. Maeda, N. Usami, T. Yoshimitsu • IEEE Robotics and Automation Letters • 2025
+  </div>
+  <p class="card-desc">
+    SLIM 搭載ローバー LEV-1 の車輪グラウザ形状を対象に、砂質レゴリス上での沈み込みを
+    低減しつつトラクションを確保する幾何学設計手法を提案した論文。
+    室内試験とシミュレーション、実際の月面での運用結果を踏まえて評価が行われている。
+    月面ローバー用のホイール／グラウザ設計に直接参考になる最新の学術資料。
+  </p>
+  <a class="card-link"
+     href="https://www.researchgate.net/publication/390867424_Design_of_Wheel_Grouser_Geometry_With_Reduced_Sinkage_for_LEV-1_Lunar_Rover"
+     target="_blank" rel="noopener">
+    <span class="url-text">ResearchGate / LEV-1 Grouser Design</span>
+    <svg viewBox="0 0 20 20" aria-hidden="true">
+      <path fill="currentColor"
+        d="M5 15.5a.75.75 0 0 1 0-1.06L13.44 6H9a.75.75 0 0 1 0-1.5h6.25A.75.75 0 0 1 16 5.25V11.5a.75.75 0 0 1-1.5 0V7.06L6.56 15.5a.75.75 0 0 1-1.06 0Z" />
+    </svg>
+  </a>
+</article>
+
+          
+          
+          <!-- VIPER Rover Design / System Overview -->
+<article class="card">
+  <div class="card-tag">
+    <span class="tag-dot"></span>
+    NASA VIPER – Rover System
+  </div>
+  <div class="card-title">
+    VIPER Rover Design and Mission Operations Overview
+  </div>
+  <div class="card-meta">
+    T. Fong et al. • NASA Ames / VIPER Team • 2025
+  </div>
+  <p class="card-desc">
+    NASA の極域探査ローバー VIPER のシステム設計と運用コンセプトをまとめた技術プレゼン資料。
+    電源・熱設計（複数ルナーデイ／PSR サバイバル）、モビリティ、計装、ソフトウェア／自律運用など、
+    現代の極域ローバー設計の実例として有用。
+  </p>
+  <a class="card-link"
+     href="https://ntrs.nasa.gov/citations/20250004148"
+     target="_blank" rel="noopener">
+    <span class="url-text">ntrs.nasa.gov / VIPER Rover Design & Ops</span>
+    <svg viewBox="0 0 20 20" aria-hidden="true">
+      <path fill="currentColor"
+        d="M5 15.5a.75.75 0 0 1 0-1.06L13.44 6H9a.75.75 0 0 1 0-1.5h6.25A.75.75 0 0 1 16 5.25V11.5a.75.75 0 0 1-1.5 0V7.06L6.56 15.5a.75.75 0 0 1-1.06 0Z" />
+    </svg>
+  </a>
+</article>
+
+
+          
+  </div>
+</section>
+
+      
+    <!-- ======================================================= -->
+    <!-- SECTION: CLPS / Lunar Payload Delivery                 -->
+    <!-- ======================================================= -->
+    <section class="section" id="clps-lunar-delivery">
+      <div class="section-header">
+        <div class="section-title">CLPS / Lunar Payload Delivery</div>
+        <div class="section-note">いわゆる「月面宅急便」関連 – NASA CLPS / Astrobotic など</div>
+      </div>
+
+      <div class="cards">
+        <!-- NASA CLPS main page -->
+        <article class="card">
+          <div class="card-tag">
+            <span class="tag-dot"></span>
+            NASA – CLPS
+          </div>
+          <div class="card-title">
+            NASA Commercial Lunar Payload Services (CLPS)
+          </div>
+          <div class="card-meta">
+            NASA • Lunar Delivery Program • Industry Partners
+          </div>
+          <p class="card-desc">
+            NASA が民間企業と連携して、科学ペイロードや技術実証機器を月面に配送するための
+            Commercial Lunar Payload Services (CLPS) の公式ページ。
+          </p>
+          <a class="card-link"
+             href="https://www.nasa.gov/commercial-lunar-payload-services/"
+             target="_blank" rel="noopener">
+            <span class="url-text">nasa.gov / Commercial Lunar Payload Services</span>
+            <svg viewBox="0 0 20 20" aria-hidden="true">
+              <path fill="currentColor"
+                d="M5 15.5a.75.75 0 0 1 0-1.06L13.44 6H9a.75.75 0 0 1 0-1.5h6.25A.75.75 0 0 1 16 5.25V11.5a.75.75 0 0 1-1.5 0V7.06L6.56 15.5a.75.75 0 0 1-1.06 0Z" />
+            </svg>
+          </a>
+        </article>
+
+        <!-- NASA CLPS Deliveries -->
+        <article class="card">
+          <div class="card-tag">
+            <span class="tag-dot"></span>
+            NASA – CLPS
+          </div>
+          <div class="card-title">
+            CLPS Deliveries – Lunar Science Payloads
+          </div>
+          <div class="card-meta">
+            NASA • CLPS Missions • Peregrine / Griffin / IM-1 / Blue Ghost
+          </div>
+          <p class="card-desc">
+            Astrobotic の Peregrine や Griffin、Intuitive Machines の Nova-C、Firefly の Blue Ghost など、
+            CLPS フライトごとのペイロードや着陸地点に関する情報をまとめたページ。
+          </p>
+          <a class="card-link"
+             href="https://science.nasa.gov/lunar-science/clps-deliveries/"
+             target="_blank" rel="noopener">
+            <span class="url-text">science.nasa.gov / CLPS Deliveries</span>
+            <svg viewBox="0 0 20 20" aria-hidden="true">
+              <path fill="currentColor"
+                d="M5 15.5a.75.75 0 0 1 0-1.06L13.44 6H9a.75.75 0 0 1 0-1.5h6.25A.75.75 0 0 1 16 5.25V11.5a.75.75 0 0 1-1.5 0V7.06L6.56 15.5a.75.75 0 0 1-1.06 0Z" />
+            </svg>
+          </a>
+        </article>
+
+          
+        <!-- Astrobotic – Plan a Mission -->
+        <article class="card">
+          <div class="card-tag">
+            <span class="tag-dot"></span>
+            Astrobotic – Lunar Delivery
+          </div>
+          <div class="card-title">
+            Astrobotic – Plan Your Space Mission
+          </div>
+          <div class="card-meta">
+            Astrobotic • Lunar Lander / Rover • Payload Delivery
+          </div>
+          <p class="card-desc">
+            Astrobotic による月面ペイロード配送サービスの問い合わせ／ミッション検討ページ。
+            月面着陸機やローバー上にペイロードを搭載するための基本的なインターフェース情報への入口。
+          </p>
+          <a class="card-link"
+             href="https://www.astrobotic.com/lunar-delivery/plan-a-mission/"
+             target="_blank" rel="noopener">
+            <span class="url-text">astrobotic.com / Plan a Mission</span>
+            <svg viewBox="0 0 20 20" aria-hidden="true">
+              <path fill="currentColor"
+                d="M5 15.5a.75.75 0 0 1 0-1.06L13.44 6H9a.75.75 0 0 1 0-1.5h6.25A.75.75 0 0 1 16 5.25V11.5a.75.75 0 0 1-1.5 0V7.06L6.56 15.5a.75.75 0 0 1-1.06 0Z" />
+            </svg>
+          </a>
+        </article>
+
+        <!-- ESA BSGN – Payload delivery on the Moon -->
+        <article class="card">
+          <div class="card-tag">
+            <span class="tag-dot"></span>
+            ESA / Astrobotic – Service
+          </div>
+          <div class="card-title">
+            Payload Delivery on the Moon – BSGN / Lunar Logistics Services &amp; Astrobotic
+          </div>
+          <div class="card-meta">
+            ESA BSGN • Lunar Logistics Services • Astrobotic
+          </div>
+          <p class="card-desc">
+            Lunar Logistics Services と Astrobotic による月面ペイロード配送サービスの紹介ページ。
+            ヨーロッパからのペイロードピックアップ、打ち上げ、月面着陸、ローバー搭載など、いわゆる
+            「月面宅急便」と呼べるサービス内容の概要が記載されています。
+          </p>
+          <a class="card-link"
+             href="https://bsgn.esa.int/service/payload-delivery-on-the-moon/"
+             target="_blank" rel="noopener">
+            <span class="url-text">bsgn.esa.int / Payload delivery on the Moon</span>
+            <svg viewBox="0 0 20 20" aria-hidden="true">
+              <path fill="currentColor"
+                d="M5 15.5a.75.75 0 0 1 0-1.06L13.44 6H9a.75.75 0 0 1 0-1.5h6.25A.75.75 0 0 1 16 5.25V11.5a.75.75 0 0 1-1.5 0V7.06L6.56 15.5a.75.75 0 0 1-1.06 0Z" />
+            </svg>
+          </a>
+        </article>
+
+         <!-- Astrobotic の Peregrine / Griffin 共通 PUG -->         
+<article class="card">
+  <div class="card-tag">
+    <span class="tag-dot"></span>
+    Astrobotic – Lunar Landers PUG
+  </div>
+  <div class="card-title">
+    Astrobotic Lunar Landers – Payload User’s Guide (Peregrine &amp; Griffin)
+  </div>
+  <div class="card-meta">
+    Astrobotic • January 2022 • PUGLanders_011222.pdf
+  </div>
+  <p class="card-desc">
+    Peregrine および Griffin 月着陸機に共通するペイロードユーザーズガイド。
+    両ランダーに対する標準ペイロードインターフェースとサービス（機械・電気・熱インターフェース、
+    利用可能な電力・通信帯域、運用フェーズ、統合プロセスなど）が体系的にまとめられており、
+    CLPS ミッションでランダー上にローバーや観測装置を搭載する際の設計前提として有用です。
+  </p>
+  <a class="card-link"
+     href="https://www.astrobotic.com/wp-content/uploads/2022/01/PUGLanders_011222.pdf"
+     target="_blank" rel="noopener">
+    <span class="url-text">astrobotic.com / ASTROBOTIC LUNAR LANDERS PUG</span>
+    <svg viewBox="0 0 20 20" aria-hidden="true">
+      <path fill="currentColor"
+        d="M5 15.5a.75.75 0 0 1 0-1.06L13.44 6H9a.75.75 0 0 1 0-1.5h6.25A.75.75 0 0 1 16 5.25V11.5a.75.75 0 0 1-1.5 0V7.06L6.56 15.5a.75.75 0 0 1-1.06 0Z" />
+    </svg>
+  </a>
+</article>
+          
+          
+        <!-- Add new CLPS / Lunar delivery card here -->
+      </div>
+    </section>
+
+    <!-- ======================================================= -->
+    <!-- SECTION: LuSEE-Night / Lunar Night Pathfinder           -->
+    <!-- ======================================================= -->
+    <section class="section" id="lusee-night">
+      <div class="section-header">
+        <div class="section-title">LuSEE-Night / Lunar Night Pathfinder</div>
+        <div class="section-note">月面裏側・夜間の極低周波観測ミッション – 電気設計・電源・熱設計の参考</div>
+      </div>
+
+      <div class="cards">
+        <!-- NASA LuSEE-Night news -->
+        <article class="card">
+          <div class="card-tag">
+            <span class="tag-dot"></span>
+            NASA / DOE – News
+          </div>
+          <div class="card-title">
+            NASA, Department of Energy Join Forces on Innovative Lunar Experiment (LuSEE-Night)
+          </div>
+          <div class="card-meta">
+            NASA • DOE • LuSEE-Night Overview • Lunar Night Survival
+          </div>
+          <p class="card-desc">
+            NASA と DOE による LuSEE-Night の公式紹介記事。
+            月の裏側での 14 日間の月面夜を生き抜くための電源・熱・電子機器設計に関する要件が概説されています。
+          </p>
+          <a class="card-link"
+             href="https://www.nasa.gov/solar-system/nasa-department-of-energy-join-forces-on-innovative-lunar-experiment/"
+             target="_blank" rel="noopener">
+            <span class="url-text">nasa.gov / LuSEE-Night announcement</span>
+            <svg viewBox="0 0 20 20" aria-hidden="true">
+              <path fill="currentColor"
+                d="M5 15.5a.75.75 0 0 1 0-1.06L13.44 6H9a.75.75 0 0 1 0-1.5h6.25A.75.75 0 0 1 16 5.25V11.5a.75.75 0 0 1-1.5 0V7.06L6.56 15.5a.75.75 0 0 1-1.06 0Z" />
+            </svg>
+          </a>
+        </article>
+
+        <!-- BNL LuSEE-Night page -->
+        <article class="card">
+          <div class="card-tag">
+            <span class="tag-dot"></span>
+            BNL – Project Page
+          </div>
+          <div class="card-title">
+            Lunar Surface Electromagnetics Experiment (LuSEE) – Night（BNL）
+          </div>
+          <div class="card-meta">
+            Brookhaven National Laboratory • Project Description
+          </div>
+          <p class="card-desc">
+            Brookhaven National Laboratory による LuSEE-Night プロジェクト紹介ページ。
+            ミッション目的、機器構成、コラボレーション体制などがまとめられています。
+          </p>
+          <a class="card-link"
+             href="https://www.cosmo.bnl.gov/node/5"
+             target="_blank" rel="noopener">
+            <span class="url-text">cosmo.bnl.gov / LuSEE-Night</span>
+            <svg viewBox="0 0 20 20" aria-hidden="true">
+              <path fill="currentColor"
+                d="M5 15.5a.75.75 0 0 1 0-1.06L13.44 6H9a.75.75 0 0 1 0-1.5h6.25A.75.75 0 0 1 16 5.25V11.5a.75.75 0 0 1-1.5 0V7.06L6.56 15.5a.75.75 0 0 1-1.06 0Z" />
+            </svg>
+          </a>
+        </article>
+
+        <!-- Berkeley Physics news -->
+        <article class="card">
+          <div class="card-tag">
+            <span class="tag-dot"></span>
+            UC Berkeley – Article
+          </div>
+          <div class="card-title">
+            LuSEE-Night will attempt first-of-its-kind measurements of the Dark Ages of the Universe
+          </div>
+          <div class="card-meta">
+            UC Berkeley • Mission Context • Science Goals
+          </div>
+          <p class="card-desc">
+            UC Berkeley による LuSEE-Night 紹介記事。
+            宇宙暗黒時代の 21 cm 信号観測の科学的背景とともに、月面裏側・夜間での運用に伴う技術的チャレンジが述べられています。
+          </p>
+          <a class="card-link"
+             href="https://physics.berkeley.edu/news/lusee-night-will-attempt-first-its-kind-measurements-dark-ages-universe"
+             target="_blank" rel="noopener">
+            <span class="url-text">physics.berkeley.edu / LuSEE-Night</span>
+            <svg viewBox="0 0 20 20" aria-hidden="true">
+              <path fill="currentColor"
+                d="M5 15.5a.75.75 0 0 1 0-1.06L13.44 6H9a.75.75 0 0 1 0-1.5h6.25A.75.75 0 0 1 16 5.25V11.5a.75.75 0 0 1-1.5 0V7.06L6.56 15.5a.75.75 0 0 1-1.06 0Z" />
+            </svg>
+          </a>
+        </article>
+
+        <!-- arXiv main LuSEE-Night paper -->
+        <article class="card">
+          <div class="card-tag">
+            <span class="tag-dot"></span>
+            arXiv – Instrument
+          </div>
+          <div class="card-title">
+            LuSEE 'Night': The Lunar Surface Electromagnetics Experiment
+          </div>
+          <div class="card-meta">
+            arXiv:2301.10345 • Instrument Design • Low-Frequency Radio
+          </div>
+          <p class="card-desc">
+            LuSEE-Night の全体設計・アンテナ構成・受信システムなどを解説した論文。
+            月面夜間の極低周波観測装置としての要求や制約条件を把握するのに有用です。
+          </p>
+          <a class="card-link"
+             href="https://arxiv.org/abs/2301.10345"
+             target="_blank" rel="noopener">
+            <span class="url-text">arxiv.org / 2301.10345</span>
+            <svg viewBox="0 0 20 20" aria-hidden="true">
+              <path fill="currentColor"
+                d="M5 15.5a.75.75 0 0 1 0-1.06L13.44 6H9a.75.75 0 0 1 0-1.5h6.25A.75.75 0 0 1 16 5.25V11.5a.75.75 0 0 1-1.5 0V7.06L6.56 15.5a.75.75 0 0 1-1.06 0Z" />
+            </svg>
+          </a>
+        </article>
+
+        <!-- arXiv power requirements / strategy -->
+        <article class="card">
+          <div class="card-tag">
+            <span class="tag-dot"></span>
+            arXiv – Power / Thermal
+          </div>
+          <div class="card-title">
+            LuSEE-Night power requirements and power generation strategy
+          </div>
+          <div class="card-meta">
+            arXiv:2407.07173 • Power System • Lunar Night Survival
+          </div>
+          <p class="card-desc">
+            LuSEE-Night の電源システム設計・電力収支・月面夜間 7 kWh バッテリー運用方針を詳細に議論した論文。
+            月面極域・夜間ミッションの電気設計基準を検討する際の貴重な参考例となります。
+          </p>
+          <a class="card-link"
+             href="https://arxiv.org/abs/2407.07173"
+             target="_blank" rel="noopener">
+            <span class="url-text">arxiv.org / 2407.07173</span>
+            <svg viewBox="0 0 20 20" aria-hidden="true">
+              <path fill="currentColor"
+                d="M5 15.5a.75.75 0 0 1 0-1.06L13.44 6H9a.75.75 0 0 1 0-1.5h6.25A.75.75 0 0 1 16 5.25V11.5a.75.75 0 0 1-1.5 0V7.06L6.56 15.5a.75.75 0 0 1-1.06 0Z" />
+            </svg>
+          </a>
+        </article>
+
+        <!-- Add new LuSEE-Night card here -->
+      </div>
+    </section>
+
+    <!-- ======================================================= -->
+    <!-- Example section for future Rover Avionics references    -->
+    <!-- ======================================================= -->
+    <!--
+    <section class="section" id="rover-avionics">
+      <div class="section-header">
+        <div class="section-title">Lunar Rover Avionics / Electrical Design</div>
+        <div class="section-note">ローバー電気設計基準書や ICD、電源・バス要求など</div>
+      </div>
+      <div class="cards">
+        <!-- Add new Rover / Avionics card here -->
+      </div>
+    </section>
+    -->
+
+  </div>
+</body>
+</html>
